@@ -10,7 +10,7 @@ namespace percentage
         [DllImport("user32.dll", CharSet=CharSet.Auto)]
         static extern bool DestroyIcon(IntPtr handle);
 
-        private const int fontSize = 18;
+        private const int fontSize = 24;
         private const string font = "Segoe UI";
 
         private NotifyIcon notifyIcon;
@@ -71,10 +71,13 @@ namespace percentage
         private void TimerTick(object sender, EventArgs e)
         {
             PowerStatus powerStatus = SystemInformation.PowerStatus;
-            String percentage = (powerStatus.BatteryLifePercent * 100).ToString();
+            float percentageValue = powerStatus.BatteryLifePercent * 100;
+            String percentage = (percentageValue).ToString();
             bool isCharging = SystemInformation.PowerStatus.PowerLineStatus == PowerLineStatus.Online;
-            String bitmapText = isCharging ? percentage + "*" : percentage;
-            using (Bitmap bitmap = new Bitmap(GetTextBitmap(bitmapText, new Font(font, fontSize), Color.White)))
+            String bitmapText = percentage;
+            Color color = isCharging ? Color.LightGreen : percentageValue < 20 ? Color.Red : Color.White;
+            FontStyle fontStyle = isCharging ? FontStyle.Bold : FontStyle.Regular;
+            using (Bitmap bitmap = new Bitmap(GetTextBitmap(bitmapText, new Font(font, fontSize, fontStyle), color)))
             {
                 System.IntPtr intPtr = bitmap.GetHicon();
                 try
